@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>后台管理</title>
+    <link rel="stylesheet" href="/static/bootstrap-3.3.7-dist/css/bootstrap.css">
+    <style>
+        .header {
+            height: 100px;
+            background: cornflowerblue;
+        }
+
+        .right, .light {
+            line-height: 100px;
+            font-size: 20px;
+            color: black;
+        }
+
+        .right:hover {
+            text-decoration: none;
+        }
+
+        .light:hover {
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+<div class="header">
+    <div class="col-md-3">
+        <a href="/index/" class="light">
+            <span class="label label-default" style="font-size: 30px;">欢迎你来博客园</span>
+        </a>
+    </div>
+    <div class="col-md-7"></div>
+    <div class="col-md-2">
+        <a href="/backend/" class="right">
+            <span >{{ request.user }}的后台管理</span>
+        </a>
+    </div>
+</div>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-2">
+            <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+                <div class="panel panel-default">
+                    <div class="panel-heading" role="tab" id="headingOne">
+                        <h4 class="panel-title">
+                            <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseOne"
+                               aria-expanded="true" aria-controls="collapseOne">
+                                操作
+                            </a>
+                        </h4>
+                    </div>
+                    <div id="collapseOne" class="panel-collapse collapse in" role="tabpanel"
+                         aria-labelledby="headingOne">
+                        <div class="panel-body">
+                            <a href="/add_article/">添加文章</a>
+                        </div>
+                        <div class="panel-body">
+                            <a href="">添加随笔</a>
+                        </div>
+                        <div class="panel-body">
+                            <a href="">其它</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-10">
+            <div>
+                <!-- Nav tabs -->
+                <ul class="nav nav-tabs" role="tablist">
+                    <li role="presentation" class="active"><a href="#home" aria-controls="home" role="tab"
+                                                              data-toggle="tab">文章</a></li>
+                    <li role="presentation"><a href="#profile" aria-controls="profile" role="tab"
+                                               data-toggle="tab">随笔</a></li>
+                    <li role="presentation"><a href="#messages" aria-controls="messages" role="tab"
+                                               data-toggle="tab">园子</a></li>
+                    <li role="presentation"><a href="#settings" aria-controls="settings" role="tab"
+                                               data-toggle="tab">交友</a></li>
+                </ul>
+
+                <!-- Tab panes -->
+                <div class="tab-content">
+                    <div role="tabpanel" class="tab-pane active" id="home">
+                        {% block backend %}
+
+                        {% endblock %}
+                    </div>
+                    <div role="tabpanel" class="tab-pane" id="profile">随笔页面</div>
+                    <div role="tabpanel" class="tab-pane" id="messages">园子页面</div>
+                    <div role="tabpanel" class="tab-pane" id="settings">交友页面</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+</body>
+<script src="/static/JS/jquery-3.3.1.js"></script>
+<script src="/static/bootstrap-3.3.7-dist/js/bootstrap.js"></script>
+{% block add_article %}
+{% endblock %}
+</html>

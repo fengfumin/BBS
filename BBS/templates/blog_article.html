@@ -1,0 +1,213 @@
+{% extends "blog_base.html" %}
+{% block content %}
+    <style>
+        #div_digg {
+            float: right;
+            margin-bottom: 10px;
+            margin-right: 30px;
+            font-size: 12px;
+            width: 125px;
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .diggit {
+            float: left;
+            width: 46px;
+            height: 52px;
+            background: url("/static/img/upup.gif") no-repeat;
+            text-align: center;
+            cursor: pointer;
+            margin-top: 2px;
+            padding-top: 5px;
+        }
+
+        .buryit {
+            float: right;
+            margin-left: 20px;
+            width: 46px;
+            height: 52px;
+            background: url("/static/img/downdown.gif") no-repeat;
+            text-align: center;
+            cursor: pointer;
+            margin-top: 2px;
+            padding-top: 5px;
+        }
+
+        .clear {
+            clear: both;
+        }
+
+        .diggword {
+            margin-top: 5px;
+            margin-left: 0;
+            font-size: 12px;
+        }
+
+        #tbCommentBody {
+            height: 150px;
+            width: 300px;
+        }
+
+    </style>
+
+    <div class="container-fluid">
+        <h3>{{ article.title }}</h3>
+        <p>{{ article.content|safe }}</p>
+    </div>
+
+
+    <div class="clearfix">
+        <div id="div_digg">
+            <div class="diggit action">
+                <span class="diggnum" name="true" id="digg_count">{{ article.up_num }}</span>
+            </div>
+            <div class="buryit action">
+                <span class="burynum" name="false" id="bury_count">{{ article.down_num }}</span>
+            </div>
+            <div class="clear"></div>
+            <div class="diggword" id="digg_tips" style="color: red;"></div>
+        </div>
+    </div>
+
+    <div class="">
+        <p>评论列表</p>
+        <ul class="list-group">
+            {% for comment in comment_list %}
+                <li class="list-group-item">
+                    <div class="">
+                        <span>#{{ forloop.counter }}楼</span>
+                        <span>{{ comment.comment_time|date:"Y-m-d H:i:s" }}</span>
+                        <span><a href="">{{ comment.user.username }}</a></span>
+                        <span class="pull-right reply" username="{{ comment.user.username }}"
+                              comment_id="{{ comment.pk }}">
+                <a>回复</a>
+            </span>
+                    </div>
+                    {% if comment.parent_id %}
+                        <div class="well">
+                            <p>@{{ comment.parent.user.username }}</p>
+                            <p>{{ comment.content }}</p>
+                        </div>
+                    {% else %}
+                        <div>
+                            <p>{{ comment.content }}</p>
+                        </div>
+                    {% endif %}
+
+                </li>
+            {% endfor %}
+
+
+        </ul>
+    </div>
+
+
+
+    <div id="comment_form_container">
+        <div id="commentform_title">发表评论</div>
+        <span id="tip_comment" style="color:Red"></span>
+        <p>
+            昵称：<input type="text" id="tbCommentAuthor" class="author" disabled="disabled" size="50"
+                      value="{{ request.user.username }}">
+        </p>
+        <div class="commentbox_main">
+            <div class="commentbox_title">
+                <div class="commentbox_title_left">评论内容：</div>
+            </div>
+        </div>
+        <div class="clear"></div>
+        <textarea id="tbCommentBody" class="comment_textarea"></textarea>
+    </div>
+    <p id="commentbox_opt">
+        <input id="btn_comment_submit" type="button" class="comment_btn" value="提交评论">
+        <a href="">退出</a>
+    </p>
+    <div id="tip_comment2" style="color:Red"></div>
+{% endblock %}
+
+{% block acrticle_js %}
+    <script>
+    $(".action").click(function () {
+        var is_up=$(this).hasClass("diggit")
+        var span=$(this).children("span")
+        $.ajax({
+            url:"/diggit/",
+            type:"post",
+            data:{"article_id":{{ article.pk }},"is_up":is_up, 'csrfmiddlewaretoken': '{{ csrf_token }}'},
+            success:function (data) {
+                $("#digg_tips").html(data.msg);
+                if (data.status==100){
+                    //获取span标签数字点击自加1
+                    span.text(Number(span.text())+1)
+                }
+            }
+        })
+    })
+
+    var parent_id = '';
+
+        $("#btn_comment_submit").click(function () {
+            var content = $("#tbCommentBody").val();
+            $.ajax({
+                url: "/comment/",
+                type: "post",
+                data: {
+                    "content": content, "article_id":{{article.pk}}, "parent_id": parent_id,
+                    'csrfmiddlewaretoken': '{{ csrf_token }}'
+                },
+                success: function (data) {
+                    var ss;
+                    $("#tbCommentBody").val("");
+                    var user_name = data.username;
+                    var content = data.content;
+                    var reply_time = data.reply_time;
+                    if (parent_id) {
+                        parent_id = "";
+                        var parent_username = data.parent_username;
+                        ss = `<li class="list-group-item">
+                        <div>
+                            <span>${user_name}</span>
+                            <span>${reply_time}</span>
+                        </div>
+                        . <div class="well">
+                        <p>@${parent_username}</p>
+                        <p>${content}</p>
+                        </div>
+                    </li>
+                        `
+                    } else {
+                        ss = `<li class="list-group-item">
+                        <div>
+                            <span>${user_name}</span>
+                            <span>${reply_time}</span>
+                        </div>
+                        ${content}
+                    </li>
+
+                        `
+                    }
+
+                    //把拼凑的html片段加到后面
+                    $(".list-group").append(ss)
+
+                }
+            })
+
+        })
+
+        $(".reply").click(function () {
+            //取出该评论的id,付给parent_id
+            parent_id = $(this).attr("comment_id")
+            var name = $(this).attr("username")
+            //在该控件中写入:@人名回车
+            $("#tbCommentBody").val("@" + name + "\n")
+            $("#tbCommentBody").focus()
+
+        })
+
+
+    </script>
+
+
+{% endblock %}

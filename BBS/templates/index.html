@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>博客主页</title>
+    <link rel="stylesheet" href="/static/bootstrap-3.3.7-dist/css/bootstrap.css">
+    <link rel="stylesheet" href="/static/font-awesome-4.7.0/css/font-awesome.min.css">
+    <style>
+        #article_img {
+            height: 50px;
+            width: 50px;
+            border: 1px solid blueviolet;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+<div class="container-fluid">
+    <div class="row">
+        <div class="header">
+            <nav class="navbar navbar-default">
+                <div class="container-fluid">
+                    <!-- Brand and toggle get grouped for better mobile display -->
+                    <div class="navbar-header">
+                        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+                                data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                            <span class="sr-only">Toggle navigation</span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </button>
+                        <a class="navbar-brand" href="#">博客园</a>
+                    </div>
+
+                    <!-- Collect the nav links, forms, and other content for toggling -->
+                    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                        <ul class="nav navbar-nav">
+                            <li class="active"><a href="#">文章 <span class="sr-only">(current)</span></a></li>
+                            <li><a href="#">欢迎来到博客园</a></li>
+                        </ul>
+
+                        <ul class="nav navbar-nav navbar-right">
+
+                            {% if request.user.is_authenticated %}
+                                <li><a href="/{{ request.user.username }}/">{{ request.user.username }}</a></li>
+                            {% else %}
+                                <li><a href="/login/">登入</a></li>
+                                <li><a href="/register/">注册</a></li>
+                            {% endif %}
+
+                            <li class="dropdown">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
+                                   aria-haspopup="true" aria-expanded="false">个人中心 <span class="caret"></span></a>
+                                <ul class="dropdown-menu">
+                                    <li><a href="/change_password/">修改密码</a></li>
+                                    <li><a href="/change_avatar/">修改头像</a></li>
+                                    <li><a href="/backend/">后台管理</a></li>
+                                    <li role="separator" class="divider"></li>
+                                    <li role="separator" class="divider"></li>
+                                    <li><a href="/login_out/">退出</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div><!-- /.navbar-collapse -->
+                </div><!-- /.container-fluid -->
+            </nav>
+        </div>
+        <div class="row">
+            <div class="left col-md-2">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">同城交友</h3>
+                    </div>
+                    <div class="panel-body">
+                        联系电话:1832838432
+                    </div>
+                </div>
+                <div class="panel panel-danger">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">同城交友</h3>
+                    </div>
+                    <div class="panel-body">
+                        联系电话:1832838432
+                    </div>
+                </div>
+                <div class="panel panel-info">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">同城交友</h3>
+                    </div>
+                    <div class="panel-body">
+                        联系电话:1832838432
+                    </div>
+                </div>
+            </div>
+            <div class="body col-md-8">
+                {% for article in page %}
+
+                    <div class="media">
+                        <div class="media-left">
+                            <a href="#">
+                                <img class="media-object" src="/media/{{ article.blog.userinfo.avatar }}"
+                                     id="article_img">
+                            </a>
+                        </div>
+                        <div class="media-body">
+                            <h4 class="media-heading"><a
+                                    href="/{{ article.blog.userinfo.username }}/article/{{ article.pk }}">{{ article.title }}</a>
+                            </h4>
+                            {{ article.summary }}
+                        </div>
+                        <span><a
+                                href="/{{ article.blog.userinfo.username }}/">{{ article.blog.userinfo.username }}</a> 发布于 {{ article.var_time|date:'Y-m-d H:i:s' }}</span>
+                        <span>&nbsp;<a href=""><i class="fa fa-commenting-o"
+                                                  aria-hidden="true"></i>评论({{ article.comment_num }})</a></span>
+                        <span>&nbsp;<a href=""><i class="fa fa-share"
+                                                  aria-hidden="true"></i>点赞({{ article.up_num }})</a></span>
+
+                    </div>
+                    <hr>
+
+                {% endfor %}
+                <nav aria-label="Page navigation">
+                    <ul class="pagination">
+                        {% if page.has_previous %}
+                            <li>
+                                <a href="/index/?page={{ page.previous_page_number }}" aria-label="Previous">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="disabled">
+                                <a href="#" aria-label="Previous ">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+                        {% endif %}
+
+                        {% for num in page_range %}
+
+                            {% if num == current_page %}
+                                <li class="item active"><a href="/index/?page={{ num }}">{{ num }}</a></li>
+                            {% else %}
+                                <li><a href="/index/?page={{ num }}">{{ num }}</a></li>
+
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if page.has_next %}
+                            <li>
+                                <a href="/index/?page={{ page.next_page_number }}" aria-label="Previous">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="disabled">
+                                <a href="#" aria-label="Previous ">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+
+
+            </div>
+            <div class="right col-md-2">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">同城交友</h3>
+                    </div>
+                    <div class="panel-body">
+                        联系电话:1832838432
+                    </div>
+                </div>
+                <div class="panel panel-danger">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">同城交友</h3>
+                    </div>
+                    <div class="panel-body">
+                        联系电话:1832838432
+                    </div>
+                </div>
+                <div class="panel panel-info">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">同城交友</h3>
+                    </div>
+                    <div class="panel-body">
+                        联系电话:1832838432
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+</body>
+<script src="/static/JS/jquery-3.3.1.js"></script>
+<script src="/static/bootstrap-3.3.7-dist/js/bootstrap.js"></script>
+</html>

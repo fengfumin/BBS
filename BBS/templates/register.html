@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>注册</title>
+    <link rel="stylesheet" href="/static/bootstrap-3.3.7-dist/css/bootstrap.min.css">
+    <style>
+        #image {
+            height: 80px;
+            width: 80px;
+            margin-left: 20px;
+        }
+
+        #img_file {
+            display: none;
+        }
+
+        .form-group span {
+            color: red;
+        }
+
+        #avatar {
+            padding: 10px;
+            border: 1px solid blue;
+            border-radius: 5px;
+        }
+
+    </style>
+</head>
+<body>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group pull-right" id="avatar" style="margin-top: 100px;">
+                <label for="img_file" style="font-size: 30px;color: rebeccapurple">头像
+                    <img src="/static/img/default.png" id="image" title="点击上传头像" alt="头像"></label>
+                <input type="file" id="img_file" accept="image/*">
+                <span class="pull-right"></span>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <h1 style="color: #1b6d85;text-align: center;">注册</h1>
+            <hr>
+            <form action="" method="post" id="form">
+                {% csrf_token %}
+                {% for foo in reg_form %}
+                    <div class="form-group">
+                        <label for="{{ foo.auto_id }}">{{ foo.label }}</label>
+                        {{ foo }}
+                        <span class="pull-right"></span>
+                    </div>
+                {% endfor %}
+                <input type="button" value="注册" class="btn btn-primary " id="btn"><span class="error"></span>
+
+                <div class="pull-right">
+                    <a href="/index/" class="btn btn-primary">返回主页</a>
+                </div>
+                <div class="pull-right" style="margin-right: 20px;">
+                    <a href="/login/" class="btn btn-primary">登入页面</a>
+                </div>
+                <br>
+                <br>
+                <br>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+<script src="/static/JS/jquery-3.3.1.min.js"></script>
+<script src="/static/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+<script>
+
+    $("#img_file").change(function () {
+        file_obj = $(this)[0].files[0];
+        //文件阅读器,生成一个文件阅读器对象
+        var filereader = new FileReader();
+        //把文件读入该对象
+        filereader.readAsDataURL(file_obj);
+        //加载文件到页面上
+        filereader.onload = (function () {
+            //filereader.result 把文件内容放到src属性上
+            $('#image').attr('src', filereader.result)
+        })
+    });
+
+    //获得焦点,清楚错误信息
+    $('#form input').focus(function (ev) {
+        $(ev.target).next().text('');
+        $(ev.target).parent().removeClass('has-error')
+    });
+
+    $("#btn").click(function () {
+        var formdata = new FormData();
+        //获取所有form表单中的input内容
+        var dic_list = $("#form").serializeArray();
+        $.each(dic_list, function (index, obj) {
+            formdata.append(obj.name, obj.value)
+        });
+        formdata.append("img_file", file_obj);
+        $.ajax({
+            url: "/register/",
+            type: "post",
+            data: formdata,
+            processData: false,
+            contentType: false,
+            success: function (data) {
+                if (data.status == 100) {
+                    alert(data.msg);
+                    location.reload()
+                } else {
+                    $.each(data.msg, function (index, obj) {
+                        //__all__表示是全局钩子
+                        if (index == "__all__") {
+                            $("#id_re_password").next().html(obj[0]).parent().addClass('has-error')
+                        } else {
+                            $("#id_" + index).next().html(obj[0]).parent().addClass('has-error')
+                        }
+                    })
+                }
+            }
+
+        })
+    })
+</script>
+
+</html>

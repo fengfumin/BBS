@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>修改头像</title>
+    <link rel="stylesheet" href="/static/bootstrap-3.3.7-dist/css/bootstrap.css">
+    <style>
+        #image {
+            height: 80px;
+            width: 80px;
+            margin-left: 20px;
+        }
+
+        #img_file {
+            display: none;
+        }
+
+        #avatar {
+            padding: 10px;
+            border: 1px solid blue;
+            border-radius: 5px;
+        }
+        .error {
+            margin-left: 20px;
+            color: red;
+        }
+    </style>
+</head>
+<body>
+<div class="container-fluid">
+    <div class="row">
+        <form action="" class="col-md-4 col-sm-offset-4">
+            {% csrf_token %}
+            <h1 style="text-align: center">修改头像</h1>
+            <hr>
+            <div class="form-group" id="avatar" style="margin-top: 50px;">
+                <label for="img_file" style="font-size: 30px;color: rebeccapurple">头像
+                    <img src="/media/{{ request.user.avatar }}" id="image" title="点击更换头像" alt="头像"></label>
+                <input type="file" id="img_file" accept="image/*">
+                <span class="pull-right"></span>
+            </div>
+            <div class="form-group">
+                <input type="button" value="确认修改" class="btn btn-primary " id="btn"><span class="error"></span>
+            </div>
+        </form>
+    </div>
+</div>
+
+</body>
+<script src="/static/JS/jquery-3.3.1.min.js"></script>
+<script src="/static/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+<script>
+    $("#img_file").change(function () {
+        file_obj = $(this)[0].files[0];
+        //文件阅读器,生成一个文件阅读器对象
+        var filereader = new FileReader();
+        //把文件读入该对象
+        filereader.readAsDataURL(file_obj);
+        //加载文件到页面上
+        filereader.onload = (function () {
+            //filereader.result 把文件内容放到src属性上
+            $('#image').attr('src', filereader.result)
+        })
+    });
+
+    $("#btn").click(function () {
+        var formdata = new FormData();
+        var file_obj = $("#img_file")[0].files[0];
+        formdata.append("img_file",file_obj);
+        formdata.append("csrfmiddlewaretoken","{{ csrf_token }}");
+        $.ajax({
+            url: "/change_avatar/",
+            type: "post",
+            processData: false,
+            contentType: false,
+            data: formdata,
+            success: function (data) {
+                if (data.status == 100) {
+                    alert(data.msg);
+                    location = href = "/index/"
+                } else {
+                    $(".error").text(data.msg)
+                }
+            }
+        })
+    })
+</script>
+
+</html>
