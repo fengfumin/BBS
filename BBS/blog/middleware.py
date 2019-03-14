@@ -65,7 +65,7 @@ class RequestBlockingMiddleware(MiddlewareMixin):
             history_time.pop()
         # 如果访问次数小于10次就将访问的ip时间插入到对应ip的key值列表的第一位置,如{"127.0.0.1":[时间2,时间1]}
         print(history_time)
-        if len(history_time)<10:
+        if len(history_time)<30:
             history_time.insert(0, visit_time)
             return None
         else:

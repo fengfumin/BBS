@@ -13,13 +13,16 @@ Including another URLconf
     1. Import the include() function: from django.conf.urls import url, include
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
-from django.conf.urls import url
+from django.conf.urls import url, include
 from django.contrib import admin
 from blog import views
 from django.views.static import serve
 from BBS import settings
+
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
+    # 全文检索,搜索功能
+    url(r'^search/', include('haystack.urls')),
 
     # restful
     url(r'^users/$', views.Users.as_view()),

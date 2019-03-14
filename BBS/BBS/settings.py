@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'blog.apps.BlogConfig',
+    "haystack"
 ]
 
 MIDDLEWARE = [
@@ -131,3 +132,15 @@ AUTH_USER_MODEL = "blog.UserInfo"
 
 # media文件夹配置
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+
+#需要设置PATH到你的Whoosh索引的文件系统位置
+import os
+HAYSTACK_CONNECTIONS = {
+    'default': {
+        'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
+        'PATH': os.path.join(os.path.dirname(__file__), 'whoosh_index'),
+    },
+}
+
+# 自动更新索引,自动跟更新和信号量有关(有django的orm插入数据才会更新)
+HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
